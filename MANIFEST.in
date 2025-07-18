@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include Pipfile
+include Pipfile.lock
+recursive-include siril_mcp *.py
+recursive-include tests *.py

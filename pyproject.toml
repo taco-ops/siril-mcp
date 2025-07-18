@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "siril-mcp"
+version = "0.1.0"
+description = "Model Context Protocol server for Siril astronomical image processing"
+readme = "README.md"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["mcp", "siril", "astronomy", "image-processing", "seestar"]
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/taco-ops/siril-mcp"
+Repository = "https://github.com/taco-ops/siril-mcp"
+Issues = "https://github.com/taco-ops/siril-mcp/issues"
+
+[project.scripts]
+siril-mcp = "siril_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["siril_mcp*"]
