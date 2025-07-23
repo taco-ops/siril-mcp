@@ -25,6 +25,8 @@ jobs:
     - name: Install dependencies
       run: |
         pipenv install --dev --python $(which python)
+        # Ensure tomli is available for Black's TOML parsing
+        pipenv run pip install tomli
     
     - name: Format code with Black
       run: |

@@ -1,10 +1,12 @@
 """Tests for the Siril MCP server."""
 
-import pytest
-import tempfile
 import os
-from unittest.mock import patch, MagicMock
-from siril_mcp.server import SSF_SCRIPTS, SSF_SCRIPT_CONTENTS
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from siril_mcp.server import SSF_SCRIPT_CONTENTS, SSF_SCRIPTS
 
 
 def test_ssf_scripts_defined():

@@ -13,6 +13,7 @@ pytest = "*"
 black = "*"
 flake8 = "*"
 isort = "*"
+tomli = "*"
 
 [scripts]
 build = "python -m build"
