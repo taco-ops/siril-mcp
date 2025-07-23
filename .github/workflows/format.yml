@@ -24,7 +24,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pipenv install --dev
+        pipenv install --dev --python $(which python)
     
     - name: Format code with Black
       run: |

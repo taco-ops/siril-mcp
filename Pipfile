@@ -14,9 +14,6 @@ black = "*"
 flake8 = "*"
 isort = "*"
 
-[requires]
-python_version = "3.10"
-
 [scripts]
 build = "python -m build"
 upload-test = "twine upload --repository testpypi dist/*"
