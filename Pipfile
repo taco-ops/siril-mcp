@@ -12,14 +12,14 @@ twine = "*"
 pytest = "*"
 black = "*"
 flake8 = "*"
-
-[requires]
-python_version = "3.10"
+isort = "*"
+tomli = "*"
 
 [scripts]
 build = "python -m build"
 upload-test = "twine upload --repository testpypi dist/*"
 upload = "twine upload dist/*"
 test = "pytest"
-format = "black ."
-lint = "flake8 --max-line-length=88 siril_mcp/"
+format = "black . && isort ."
+format-check = "black --check . && isort --check-only ."
+lint = "flake8 --max-line-length=88 siril_mcp/ tests/"

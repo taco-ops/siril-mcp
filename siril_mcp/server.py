@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from fastmcp import FastMCP
-import subprocess
 import os
+import subprocess
 from typing import Literal
+
+from fastmcp import FastMCP
 
 mcp = FastMCP(name="Siril SeeStar Mosaic Processor")
 
