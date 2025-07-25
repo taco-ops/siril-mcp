@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/taco-ops/siril-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/taco-ops/siril-mcp/actions/workflows/ci.yml)
 [![Release](https://github.com/taco-ops/siril-mcp/actions/workflows/release.yml/badge.svg)](https://github.com/taco-ops/siril-mcp/actions/workflows/release.yml)
+[![Automated Release](https://github.com/taco-ops/siril-mcp/actions/workflows/release-it.yml/badge.svg)](https://github.com/taco-ops/siril-mcp/actions/workflows/release-it.yml)
 [![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://github.com/taco-ops/siril-mcp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Development Status](https://img.shields.io/badge/status-work%20in%20progress-yellow.svg)](https://github.com/taco-ops/siril-mcp)
@@ -151,6 +152,65 @@ npm run test:all
 
 # Validate CI setup readiness
 npm run validate-ci
+```
+
+#### Release Management (npm):
+```bash
+# Test release process (dry run)
+npm run release:dry
+
+# Create actual releases
+npm run release:patch    # Bug fixes (1.0.0 → 1.0.1)
+npm run release:minor    # New features (1.0.0 → 1.1.0)
+npm run release:major    # Breaking changes (1.0.0 → 2.0.0)
+
+# General release (auto-detects type)
+npm run release
+```
+
+### Local Development Workflow
+
+#### Pre-commit Hooks (Recommended)
+This project uses pre-commit hooks to ensure code quality. Install them for automatic checks:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pipenv run pre-commit install
+
+# Now all commits will automatically run:
+# - Black formatting
+# - isort import sorting
+# - flake8 linting
+# - pytest tests
+```
+
+#### Manual Quality Checks
+You can also run quality checks manually:
+
+```bash
+# Run all pre-commit hooks on all files
+pipenv run pre-commit run --all-files
+
+# Run specific checks
+pipenv run pre-commit run black        # Format code
+pipenv run pre-commit run flake8       # Lint code
+pipenv run pre-commit run pytest      # Run tests
+```
+
+#### Release Testing Locally
+Test the release process without actually releasing:
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# Test what a release would look like
+npm run release:dry
+
+# Test specific release types
+npm run release:patch --dry-run
+npm run release:minor --dry-run
+npm run release:major --dry-run
 ```
 
 ## 🧪 Testing & Quality Assurance
@@ -312,15 +372,25 @@ Future feature to launch Naztronomy Smart Telescope preprocessing GUI in headles
 
 ### Automated Release Process
 
-Releases are automatically built and published with comprehensive validation:
+This project features a fully automated release system with two approaches:
 
+#### Option 1: GitHub Actions Release (Recommended)
+1. **Go to**: [GitHub Actions](https://github.com/taco-ops/siril-mcp/actions)
+2. **Select**: "Release with release-it" workflow
+3. **Click**: "Run workflow"
+4. **Choose**: Release type:
+   - **Patch** (1.0.0 → 1.0.1) - Bug fixes
+   - **Minor** (1.0.0 → 1.1.0) - New features
+   - **Major** (1.0.0 → 2.0.0) - Breaking changes
+
+#### Option 2: Traditional Tag-Based Release
 ```bash
 # Create and push a new version tag
-git tag v0.1.0
-git push origin v0.1.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
-This triggers the complete release pipeline:
+Both methods trigger the complete release pipeline:
 
 #### Pre-Release Validation
 1. ✅ **Code Quality**: Automated linting and formatting checks
@@ -330,8 +400,18 @@ This triggers the complete release pipeline:
 5. ✅ **Package Building**: Wheel and source distribution validation
 
 #### Release Execution
-6. ✅ **GitHub Release**: Automated release creation with artifacts
-7. ✅ **PyPI Publishing**: Automatic publishing to PyPI (for stable releases)
+6. ✅ **Version Management**: Automatic version synchronization across all files
+7. ✅ **Changelog Generation**: Conventional changelog with commit links
+8. ✅ **GitHub Release**: Automated release creation with artifacts
+9. ✅ **PyPI Publishing**: Automatic publishing to PyPI (for stable releases)
+
+### Advanced Release Features
+
+- **🔄 Version Synchronization**: Automatically syncs versions between `package.json` and `pyproject.toml`
+- **📝 Conventional Changelogs**: Auto-generated changelogs from commit messages
+- **🏷️ Smart Tagging**: Automatic git tagging with proper semantic versioning
+- **📦 Asset Management**: Release artifacts automatically attached to GitHub releases
+- **✨ Pre-commit Hooks**: Quality checks run automatically before releases
 
 ### Quality Gates
 
