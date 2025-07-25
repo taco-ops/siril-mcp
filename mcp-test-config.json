@@ -1,0 +1,9 @@
+{
+  "name": "siril-mcp-server",
+  "command": "python",
+  "args": ["-m", "siril_mcp.server"],
+  "env": {
+    "PYTHONPATH": ".",
+    "SIRIL_BINARY": "/Applications/Siril.app/Contents/MacOS/Siril"
+  }
+}

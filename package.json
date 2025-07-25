@@ -1,0 +1,14 @@
+{
+  "name": "siril-mcp-testing",
+  "version": "1.0.0",
+  "description": "Comprehensive testing for Siril MCP server",
+  "scripts": {
+    "test": "node simple-mcp-test.js",
+    "test:integration": "node test-mcp-integration.js",
+    "test:all": "npm run test && npm run test:integration",
+    "validate-ci": "node validate-ci-setup.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0"
+  }
+}
