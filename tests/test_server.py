@@ -1,10 +1,12 @@
 """Tests for the Siril MCP server."""
 
-import pytest
-import tempfile
 import os
-from unittest.mock import patch, MagicMock
-from siril_mcp.server import SSF_SCRIPTS, SSF_SCRIPT_CONTENTS
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from siril_mcp.server import SSF_SCRIPT_CONTENTS, SSF_SCRIPTS
 
 
 def test_ssf_scripts_defined():
@@ -62,7 +64,7 @@ def test_check_siril_version_success(mock_run, mock_find_binary):
 
     # Mock the binary finder to return a specific path
     mock_find_binary.return_value = "/Applications/Siril.app/Contents/MacOS/Siril"
-    
+
     # Mock successful subprocess call
     mock_result = MagicMock()
     mock_result.returncode = 0
@@ -71,10 +73,10 @@ def test_check_siril_version_success(mock_run, mock_find_binary):
 
     result = _check_siril_version()
     assert result == "Siril 1.4.0-beta1"
-    
+
     # Verify that _find_siril_binary was called
     mock_find_binary.assert_called_once()
-    
+
     # Verify subprocess was called with the found binary path
     mock_run.assert_called_once_with(
         ["/Applications/Siril.app/Contents/MacOS/Siril", "--version"],
@@ -91,7 +93,7 @@ def test_check_siril_version_failure(mock_run, mock_find_binary):
 
     # Mock the binary finder to return a specific path
     mock_find_binary.return_value = "/Applications/Siril.app/Contents/MacOS/Siril"
-    
+
     # Mock failed subprocess call
     mock_result = MagicMock()
     mock_result.returncode = 1
@@ -109,15 +111,15 @@ def test_check_siril_version_failure(mock_run, mock_find_binary):
 def test_find_siril_binary_env_var(mock_access, mock_isfile, mock_which, mock_env_get):
     """Test _find_siril_binary with SIRIL_BINARY environment variable."""
     from siril_mcp.server import _find_siril_binary
-    
+
     # Mock environment variable
     mock_env_get.return_value = "/custom/path/to/siril"
     mock_isfile.return_value = True
     mock_access.return_value = True
-    
+
     result = _find_siril_binary()
     assert result == "/custom/path/to/siril"
-    
+
     mock_env_get.assert_called_once_with("SIRIL_BINARY")
     mock_isfile.assert_called_once_with("/custom/path/to/siril")
     mock_access.assert_called_once_with("/custom/path/to/siril", os.X_OK)
@@ -128,15 +130,15 @@ def test_find_siril_binary_env_var(mock_access, mock_isfile, mock_which, mock_en
 def test_find_siril_binary_in_path(mock_which, mock_env_get):
     """Test _find_siril_binary when siril is in PATH."""
     from siril_mcp.server import _find_siril_binary
-    
+
     # Mock no environment variable
     mock_env_get.return_value = None
     # Mock siril found in PATH
     mock_which.return_value = "/usr/bin/siril"
-    
+
     result = _find_siril_binary()
     assert result == "/usr/bin/siril"
-    
+
     mock_env_get.assert_called_once_with("SIRIL_BINARY")
     mock_which.assert_called_once_with("siril")
 
@@ -145,24 +147,28 @@ def test_find_siril_binary_in_path(mock_which, mock_env_get):
 @patch("siril_mcp.server.shutil.which")
 @patch("siril_mcp.server.os.path.isfile")
 @patch("siril_mcp.server.os.access")
-def test_find_siril_binary_macos_location(mock_access, mock_isfile, mock_which, mock_env_get):
+def test_find_siril_binary_macos_location(
+    mock_access, mock_isfile, mock_which, mock_env_get
+):
     """Test _find_siril_binary finding macOS app bundle location."""
     from siril_mcp.server import _find_siril_binary
-    
+
     # Mock no environment variable and not in PATH
     mock_env_get.return_value = None
     mock_which.return_value = None
-    
+
     # Mock the macOS location exists
     def mock_isfile_side_effect(path):
         return path == "/Applications/Siril.app/Contents/MacOS/Siril"
-    
+
     def mock_access_side_effect(path, mode):
-        return path == "/Applications/Siril.app/Contents/MacOS/Siril" and mode == os.X_OK
-    
+        return (
+            path == "/Applications/Siril.app/Contents/MacOS/Siril" and mode == os.X_OK
+        )
+
     mock_isfile.side_effect = mock_isfile_side_effect
     mock_access.side_effect = mock_access_side_effect
-    
+
     result = _find_siril_binary()
     assert result == "/Applications/Siril.app/Contents/MacOS/Siril"
 
@@ -171,16 +177,18 @@ def test_find_siril_binary_macos_location(mock_access, mock_isfile, mock_which, 
 @patch("siril_mcp.server.shutil.which")
 @patch("siril_mcp.server.os.path.isfile")
 @patch("siril_mcp.server.os.access")
-def test_find_siril_binary_not_found(mock_access, mock_isfile, mock_which, mock_env_get):
+def test_find_siril_binary_not_found(
+    mock_access, mock_isfile, mock_which, mock_env_get
+):
     """Test _find_siril_binary when Siril is not found anywhere."""
     from siril_mcp.server import _find_siril_binary
-    
+
     # Mock no environment variable, not in PATH, and no files found
     mock_env_get.return_value = None
     mock_which.return_value = None
     mock_isfile.return_value = False
     mock_access.return_value = False
-    
+
     with pytest.raises(RuntimeError, match="Siril binary not found"):
         _find_siril_binary()
 
@@ -189,11 +197,13 @@ def test_find_siril_binary_not_found(mock_access, mock_isfile, mock_which, mock_
 def test_find_siril_binary_invalid_env_var(mock_env_get):
     """Test _find_siril_binary with invalid SIRIL_BINARY environment variable."""
     from siril_mcp.server import _find_siril_binary
-    
+
     # Mock environment variable pointing to non-existent file
     mock_env_get.return_value = "/nonexistent/siril"
-    
-    with pytest.raises(RuntimeError, match="Custom Siril binary specified.*is not found"):
+
+    with pytest.raises(
+        RuntimeError, match="Custom Siril binary specified.*is not found"
+    ):
         _find_siril_binary()
 
 

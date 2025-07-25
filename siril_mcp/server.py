@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-from fastmcp import FastMCP, Context
-import subprocess
 import os
 import shutil
+import subprocess
 from typing import Literal, Optional
+
+from fastmcp import Context, FastMCP
 
 mcp = FastMCP(name="Siril SeeStar Mosaic Processor")
 
@@ -156,13 +157,13 @@ SSF_SCRIPTS = {
 def _find_siril_binary() -> str:
     """
     Find the Siril binary in common locations.
-    
+
     Returns the path to the Siril executable, checking:
     1. SIRIL_BINARY environment variable (if set)
     2. PATH environment variable (siril command)
     3. macOS app bundle location
     4. Common Linux/Windows locations
-    
+
     Raises RuntimeError if Siril cannot be found.
     """
     # First check if user specified a custom binary path via environment variable
@@ -175,12 +176,12 @@ def _find_siril_binary() -> str:
                 f"Custom Siril binary specified in SIRIL_BINARY environment variable "
                 f"is not found or not executable: {custom_binary}"
             )
-    
+
     # Check if 'siril' is in PATH
     siril_path = shutil.which("siril")
     if siril_path:
         return siril_path
-    
+
     # Common locations to check
     possible_locations = [
         # macOS app bundle
@@ -195,11 +196,11 @@ def _find_siril_binary() -> str:
         "/mnt/c/Program Files/Siril/siril.exe",
         "/mnt/c/Program Files (x86)/Siril/siril.exe",
     ]
-    
+
     for location in possible_locations:
         if os.path.isfile(location) and os.access(location, os.X_OK):
             return location
-    
+
     # If we get here, Siril wasn't found
     raise RuntimeError(
         "Siril binary not found. Please ensure Siril is installed and either:\n"
@@ -246,14 +247,11 @@ async def find_siril_binary(ctx: Context) -> str:
         await ctx.info("Searching for Siril binary...")
         siril_path = _find_siril_binary()
         await ctx.info(f"Found Siril binary at: {siril_path}")
-        
+
         # Test that we can actually run it
         await ctx.debug("Testing Siril binary...")
         proc = subprocess.run(
-            [siril_path, "--version"],
-            capture_output=True,
-            text=True,
-            timeout=10
+            [siril_path, "--version"], capture_output=True, text=True, timeout=10
         )
         if proc.returncode == 0:
             version_info = proc.stdout.strip()
@@ -272,31 +270,30 @@ async def validate_siril_binary(binary_path: str, ctx: Context) -> str:
     """
     Tests whether a specific Siril binary path works correctly.
     Useful for validating custom installations or non-standard locations.
-    
+
     :param binary_path: Full path to the Siril binary to test
     """
     await ctx.info(f"Validating Siril binary at: {binary_path}")
-    
+
     if not os.path.isfile(binary_path):
         await ctx.error(f"File not found: {binary_path}")
         return f"❌ File not found: {binary_path}"
-    
+
     if not os.access(binary_path, os.X_OK):
         await ctx.error(f"File is not executable: {binary_path}")
         return f"❌ File is not executable: {binary_path}"
-    
+
     try:
         await ctx.debug("Testing binary execution...")
         proc = subprocess.run(
-            [binary_path, "--version"],
-            capture_output=True,
-            text=True,
-            timeout=10
+            [binary_path, "--version"], capture_output=True, text=True, timeout=10
         )
         if proc.returncode == 0:
             version_info = proc.stdout.strip()
             await ctx.info("Binary validation successful")
-            return f"✅ Siril binary works correctly!\nPath: {binary_path}\n{version_info}"
+            return (
+                f"✅ Siril binary works correctly!\nPath: {binary_path}\n{version_info}"
+            )
         else:
             await ctx.error(f"Binary execution failed: {proc.stderr.strip()}")
             return f"❌ Binary failed to run: {proc.stderr.strip()}"
@@ -373,7 +370,7 @@ async def process_seestar_mosaic(
     if ctx:
         await ctx.info(f"Starting Seestar mosaic processing in {project_dir}")
         await ctx.info(f"Filter type: {filter_type}")
-    
+
     try:
         result = _process_seestar_mosaic(project_dir, filter_type)
         if ctx:
