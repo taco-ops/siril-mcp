@@ -55,7 +55,18 @@ This repository includes comprehensive GitHub Actions workflows for continuous i
   - Sorts imports with isort
   - Commits changes back to the repository
 
-### 4. Test CI Setup Workflow (`.github/workflows/test-ci-setup.yml`)
+### 4. Automated Release Workflow (`.github/workflows/release-it.yml`)
+- **Triggers**: Manual dispatch with release type selection
+- **Purpose**: Automated release creation with version management
+- **Actions**:
+  - Choose release type: patch, minor, or major
+  - Runs comprehensive testing and quality checks
+  - Automatically bumps version in all package files
+  - Generates conventional changelog
+  - Creates GitHub release with assets
+  - Handles version synchronization between package.json and pyproject.toml
+
+### 5. Test CI Setup Workflow (`.github/workflows/test-ci-setup.yml`)
 - **Triggers**: Manual dispatch (for CI validation)
 - **Purpose**: Validates that CI testing infrastructure works correctly
 - **Actions**:
@@ -74,13 +85,26 @@ CI runs automatically on pushes and pull requests. **All checks must pass before
 - ✅ Package build verification
 
 ### Creating a Release
+
+**Option 1: Automated Release (Recommended)**
+1. Go to your GitHub repository
+2. Click the "Actions" tab
+3. Select "Automated Release with release-it" workflow
+4. Click "Run workflow"
+5. Choose your release type:
+   - **Patch** (1.0.0 → 1.0.1) - for bug fixes
+   - **Minor** (1.0.0 → 1.1.0) - for new features
+   - **Major** (1.0.0 → 2.0.0) - for breaking changes
+
+**Option 2: Traditional Tag-Based Release**
 1. Update the version in `pyproject.toml`
 2. Create and push a git tag:
    ```bash
    git tag v1.0.0
    git push origin v1.0.0
    ```
-3. **Automated Release Pipeline Executes**:
+
+**Automated Release Pipeline Executes**:
    - Comprehensive testing across Python versions
    - MCP functionality validation
    - Package building and integrity checks
