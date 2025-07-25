@@ -1,0 +1,34 @@
+{
+  "git": {
+    "commitMessage": "chore: release v${version}",
+    "tag": true,
+    "push": true,
+    "commit": true,
+    "requireCleanWorkingDir": false
+  },
+  "github": {
+    "release": true,
+    "assets": ["dist/*.whl", "dist/*.tar.gz"]
+  },
+  "hooks": {
+    "before:init": [
+      "npm run validate-ci"
+    ],
+    "after:bump": [
+      "node sync-version.js",
+      "pipenv run python -m build"
+    ],
+    "before:release": [
+      "npm run test:all"
+    ]
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  },
+  "npm": {
+    "publish": false
+  }
+}

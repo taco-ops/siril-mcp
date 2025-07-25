@@ -6,9 +6,18 @@
     "test": "node simple-mcp-test.js",
     "test:integration": "node test-mcp-integration.js",
     "test:all": "npm run test && npm run test:integration",
-    "validate-ci": "node validate-ci-setup.js"
+    "validate-ci": "node validate-ci-setup.js",
+    "release": "release-it",
+    "release:dry": "release-it --dry-run",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.1",
+    "release-it": "^19.0.4"
   }
 }

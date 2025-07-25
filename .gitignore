@@ -393,6 +393,10 @@ test-imports.py
 test-internal-functions.py
 test-structure.py
 
+# Release artifacts
+CHANGELOG.md
+.release-it.json.bak
+
 # Redundant files (we use Pipenv)
 requirements.txt
 
