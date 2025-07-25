@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 import subprocess
 import os
-from typing import Literal
+import shutil
+from typing import Literal, Optional
 
 mcp = FastMCP(name="Siril SeeStar Mosaic Processor")
+
 
 # SSF Script contents from https://github.com/naztronaut/siril-scripts
 # (C) Nazmus Nasir (Naztronomy.com) - Used under GPL-3.0 license
@@ -151,13 +153,71 @@ SSF_SCRIPTS = {
 }
 
 
+def _find_siril_binary() -> str:
+    """
+    Find the Siril binary in common locations.
+    
+    Returns the path to the Siril executable, checking:
+    1. SIRIL_BINARY environment variable (if set)
+    2. PATH environment variable (siril command)
+    3. macOS app bundle location
+    4. Common Linux/Windows locations
+    
+    Raises RuntimeError if Siril cannot be found.
+    """
+    # First check if user specified a custom binary path via environment variable
+    custom_binary = os.environ.get("SIRIL_BINARY")
+    if custom_binary:
+        if os.path.isfile(custom_binary) and os.access(custom_binary, os.X_OK):
+            return custom_binary
+        else:
+            raise RuntimeError(
+                f"Custom Siril binary specified in SIRIL_BINARY environment variable "
+                f"is not found or not executable: {custom_binary}"
+            )
+    
+    # Check if 'siril' is in PATH
+    siril_path = shutil.which("siril")
+    if siril_path:
+        return siril_path
+    
+    # Common locations to check
+    possible_locations = [
+        # macOS app bundle
+        "/Applications/Siril.app/Contents/MacOS/Siril",
+        # Alternative macOS locations
+        "/usr/local/bin/siril",
+        "/opt/homebrew/bin/siril",
+        # Linux locations
+        "/usr/bin/siril",
+        "/usr/local/bin/siril",
+        # Windows locations (if running under WSL or similar)
+        "/mnt/c/Program Files/Siril/siril.exe",
+        "/mnt/c/Program Files (x86)/Siril/siril.exe",
+    ]
+    
+    for location in possible_locations:
+        if os.path.isfile(location) and os.access(location, os.X_OK):
+            return location
+    
+    # If we get here, Siril wasn't found
+    raise RuntimeError(
+        "Siril binary not found. Please ensure Siril is installed and either:\n"
+        "1. Add 'siril' to your PATH, or\n"
+        "2. Install Siril in a standard location like /Applications/Siril.app (macOS), or\n"
+        "3. Set the SIRIL_BINARY environment variable to the full path of your Siril binary\n"
+        f"Searched locations: {possible_locations}"
+    )
+
+
 def _check_siril_version() -> str:
     """
     Internal function to check Siril version.
     Separated for easier testing.
     """
+    siril_binary = _find_siril_binary()
     proc = subprocess.run(
-        ["siril", "--version"],
+        [siril_binary, "--version"],
         capture_output=True,
         text=True,
     )
@@ -173,6 +233,79 @@ def check_siril_version() -> str:
     Runs 'siril --version' on the local machine and returns the version string.
     """
     return _check_siril_version()
+
+
+@mcp.tool
+async def find_siril_binary(ctx: Context) -> str:
+    """
+    Locates the Siril binary on your system and returns its path.
+    This is useful for troubleshooting installation issues or confirming
+    which version of Siril will be used.
+    """
+    try:
+        await ctx.info("Searching for Siril binary...")
+        siril_path = _find_siril_binary()
+        await ctx.info(f"Found Siril binary at: {siril_path}")
+        
+        # Test that we can actually run it
+        await ctx.debug("Testing Siril binary...")
+        proc = subprocess.run(
+            [siril_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if proc.returncode == 0:
+            version_info = proc.stdout.strip()
+            await ctx.info("Siril binary test successful")
+            return f"✅ Found working Siril binary at: {siril_path}\n{version_info}"
+        else:
+            await ctx.error(f"Siril binary test failed: {proc.stderr.strip()}")
+            return f"⚠️ Found Siril binary at {siril_path} but it failed to run: {proc.stderr.strip()}"
+    except Exception as e:
+        await ctx.error(f"Error finding Siril binary: {str(e)}")
+        return f"❌ {str(e)}"
+
+
+@mcp.tool
+async def validate_siril_binary(binary_path: str, ctx: Context) -> str:
+    """
+    Tests whether a specific Siril binary path works correctly.
+    Useful for validating custom installations or non-standard locations.
+    
+    :param binary_path: Full path to the Siril binary to test
+    """
+    await ctx.info(f"Validating Siril binary at: {binary_path}")
+    
+    if not os.path.isfile(binary_path):
+        await ctx.error(f"File not found: {binary_path}")
+        return f"❌ File not found: {binary_path}"
+    
+    if not os.access(binary_path, os.X_OK):
+        await ctx.error(f"File is not executable: {binary_path}")
+        return f"❌ File is not executable: {binary_path}"
+    
+    try:
+        await ctx.debug("Testing binary execution...")
+        proc = subprocess.run(
+            [binary_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if proc.returncode == 0:
+            version_info = proc.stdout.strip()
+            await ctx.info("Binary validation successful")
+            return f"✅ Siril binary works correctly!\nPath: {binary_path}\n{version_info}"
+        else:
+            await ctx.error(f"Binary execution failed: {proc.stderr.strip()}")
+            return f"❌ Binary failed to run: {proc.stderr.strip()}"
+    except subprocess.TimeoutExpired:
+        await ctx.error("Binary execution timed out")
+        return f"❌ Binary timed out (may be hanging)"
+    except Exception as e:
+        await ctx.error(f"Error testing binary: {str(e)}")
+        return f"❌ Error testing binary: {str(e)}"
 
 
 def _process_seestar_mosaic(
@@ -199,12 +332,12 @@ def _process_seestar_mosaic(
         # Create the SSF script file if it doesn't exist
         ssf_path = os.path.join(project_dir, ssf_name)
         if not os.path.isfile(ssf_path):
-            mcp.log(f"Creating {ssf_name} script in {project_dir}")
             with open(ssf_path, "w", encoding="utf-8") as f:
                 f.write(SSF_SCRIPT_CONTENTS[filter_type])
 
         # Invoke Siril in batch/script mode
-        cmd = ["siril", "-s", ssf_name]
+        siril_binary = _find_siril_binary()
+        cmd = [siril_binary, "-s", ssf_name]
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
             raise RuntimeError(f"Siril failed:\n{proc.stderr}")
@@ -213,16 +346,18 @@ def _process_seestar_mosaic(
         # with a predictable name—adjust if the script differs.
         output_path = os.path.join(project_dir, "process", "mosaic.fits")
         if not os.path.isfile(output_path):
-            mcp.log(f"⚠️ Mosaic script completed but no '{output_path}' found.")
+            # Note: Can't log here since this is not an async function
+            pass
         return output_path
     finally:
         os.chdir(cwd)
 
 
 @mcp.tool
-def process_seestar_mosaic(
+async def process_seestar_mosaic(
     project_dir: str,
     filter_type: Literal["broadband", "narrowband"] = "broadband",
+    ctx: Context = None,
 ) -> str:
     """
     Runs the appropriate Siril .ssf mosaic script on all FIT(S) in project_dir/lights,
@@ -235,7 +370,19 @@ def process_seestar_mosaic(
     :param filter_type: 'broadband' for UV/IR block or 'narrowband' for LP filter
     :returns: path to the resulting mosaic FIT
     """
-    return _process_seestar_mosaic(project_dir, filter_type)
+    if ctx:
+        await ctx.info(f"Starting Seestar mosaic processing in {project_dir}")
+        await ctx.info(f"Filter type: {filter_type}")
+    
+    try:
+        result = _process_seestar_mosaic(project_dir, filter_type)
+        if ctx:
+            await ctx.info(f"Mosaic processing completed successfully")
+        return result
+    except Exception as e:
+        if ctx:
+            await ctx.error(f"Mosaic processing failed: {str(e)}")
+        raise
 
 
 @mcp.tool
@@ -254,7 +401,7 @@ def preprocess_with_gui(project_dir: str) -> str:
 
 
 @mcp.tool
-def download_latest_ssf_scripts(project_dir: str) -> str:
+async def download_latest_ssf_scripts(project_dir: str, ctx: Context) -> str:
     """
     Downloads the latest SSF script files from the naztronaut/siril-scripts repository
     and saves them to your project directory. This ensures you have the most up-to-date
@@ -265,6 +412,7 @@ def download_latest_ssf_scripts(project_dir: str) -> str:
     """
     import urllib.request
 
+    await ctx.info(f"Downloading latest SSF scripts to {project_dir}")
     base_url = "https://raw.githubusercontent.com/naztronaut/siril-scripts/main/"
     scripts_downloaded = []
 
@@ -273,19 +421,21 @@ def download_latest_ssf_scripts(project_dir: str) -> str:
             script_url = base_url + script_name
             script_path = os.path.join(project_dir, script_name)
 
-            mcp.log(f"Downloading {script_name} from {script_url}")
+            await ctx.info(f"Downloading {script_name} from {script_url}")
             urllib.request.urlretrieve(script_url, script_path)
             scripts_downloaded.append(script_name)
 
         except Exception as e:
-            mcp.log(f"⚠️ Failed to download {script_name}: {e}")
+            await ctx.warning(f"Failed to download {script_name}: {e}")
             # Fall back to embedded version
-            mcp.log(f"Creating fallback version of {script_name}")
+            await ctx.info(f"Creating fallback version of {script_name}")
             with open(script_path, "w", encoding="utf-8") as f:
                 f.write(SSF_SCRIPT_CONTENTS[filter_type])
             scripts_downloaded.append(f"{script_name} (fallback)")
 
-    return f"Downloaded scripts to {project_dir}: {', '.join(scripts_downloaded)}"
+    result = f"Downloaded scripts to {project_dir}: {', '.join(scripts_downloaded)}"
+    await ctx.info("Script download completed")
+    return result
 
 
 @mcp.tool
