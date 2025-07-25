@@ -11,7 +11,7 @@ class SimpleMCPTester {
 
     async startServer() {
         console.log("🚀 Starting Siril MCP Server...");
-        
+
         return new Promise((resolve, reject) => {
             this.serverProcess = spawn('python', ['-m', 'siril_mcp.server'], {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -92,7 +92,7 @@ try:
     else:
         binary = _find_siril_binary()
         print(f"✅ Found Siril binary: {binary}")
-        
+
         version = _check_siril_version()
         print(f"✅ Siril version: {version}")
 except Exception as e:
@@ -102,7 +102,7 @@ except Exception as e:
         print(f"❌ Error: {e}")
         raise
 `;
-            
+
             fs.writeFileSync('test_internal_functions.py', testScript);
             const result = execSync('pipenv run python test_internal_functions.py', {
                 cwd: process.cwd(),
@@ -128,11 +128,11 @@ except Exception as e:
         try {
             const testDir = path.join(process.cwd(), 'test-structure-validation');
             const lightsDir = path.join(testDir, 'lights');
-            
+
             // Create test project
             fs.mkdirSync(lightsDir, { recursive: true });
             fs.writeFileSync(path.join(lightsDir, 'test.fit'), 'MOCK_DATA');
-            
+
             const { execSync } = require('child_process');
             const testScript = `
 import sys
@@ -143,7 +143,7 @@ sys.path.append('.')
 def check_project_structure_simple(project_dir):
     if not os.path.isdir(project_dir):
         return f"❌ Project directory '{project_dir}' does not exist"
-    
+
     # Check for lights directory
     lights_dir = os.path.join(project_dir, "lights")
     if os.path.isdir(lights_dir):
@@ -159,18 +159,18 @@ try:
 except Exception as e:
     print(f"❌ Error: {e}")
 `;
-            
+
             fs.writeFileSync('test_structure.py', testScript);
             const result = execSync('pipenv run python test_structure.py', {
                 cwd: process.cwd(),
                 encoding: 'utf8'
             });
             console.log(result);
-            
+
             // Cleanup
             fs.unlinkSync('test_structure.py');
             fs.rmSync(testDir, { recursive: true, force: true });
-            
+
         } catch (error) {
             console.log("❌ Project structure test failed:", error.message);
         }
@@ -199,7 +199,7 @@ for filter_type in ['broadband', 'narrowband']:
     else:
         print(f"❌ {filter_type} script content seems invalid")
 `;
-            
+
             fs.writeFileSync('test_scripts.py', testScript);
             const result = execSync('pipenv run python test_scripts.py', {
                 cwd: process.cwd(),
@@ -207,7 +207,7 @@ for filter_type in ['broadband', 'narrowband']:
             });
             console.log(result);
             fs.unlinkSync('test_scripts.py');
-            
+
         } catch (error) {
             console.log("❌ Script generation test failed:", error.message);
         }
@@ -220,13 +220,13 @@ for filter_type in ['broadband', 'narrowband']:
         try {
             await this.testBasicFunctionality();
             await this.testScriptGeneration();
-            
+
             console.log("\n📊 Test Summary");
             console.log("===============");
             console.log("✅ Basic functionality tests completed");
             console.log("✅ Script generation tests completed");
             console.log("🎉 All tests finished!");
-            
+
         } catch (error) {
             console.error("❌ Test suite failed:", error);
         }

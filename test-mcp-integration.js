@@ -19,7 +19,7 @@ class MCPIntegrationTester {
 
     async startServer() {
         console.log('🚀 Starting MCP Server...');
-        
+
         return new Promise((resolve, reject) => {
             this.serverProcess = spawn('pipenv', ['run', 'python', '-m', 'siril_mcp.server'], {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -33,23 +33,23 @@ class MCPIntegrationTester {
 
             let initializationComplete = false;
             let initializeResponseReceived = false;
-            
+
             rl.on('line', (line) => {
                 try {
                     const response = JSON.parse(line);
                     this.responses.push(response);
-                    
+
                     // Check for initialization response
                     if (response.result && response.result.capabilities && !initializeResponseReceived) {
                         initializeResponseReceived = true;
                         console.log('✅ Initialization response received');
-                        
+
                         // Send initialized notification
                         this.sendRequest({
                             jsonrpc: "2.0",
                             method: "notifications/initialized"
                         });
-                        
+
                         // Wait a bit then mark as complete
                         setTimeout(() => {
                             initializationComplete = true;
@@ -102,7 +102,7 @@ class MCPIntegrationTester {
 
     async testListTools() {
         console.log('\n🔧 Testing tools/list...');
-        
+
         return new Promise((resolve) => {
             this.sendRequest({
                 jsonrpc: "2.0",
@@ -129,9 +129,9 @@ class MCPIntegrationTester {
 
     async testFindSirilBinary() {
         console.log('\n🔍 Testing find_siril_binary tool...');
-        
+
         const isCI = process.env.CI === 'true';
-        
+
         return new Promise((resolve) => {
             this.sendRequest({
                 jsonrpc: "2.0",
@@ -144,11 +144,11 @@ class MCPIntegrationTester {
             });
 
             setTimeout(() => {
-                const callResponse = this.responses.find(r => 
-                    r.result && r.result.content && r.result.content[0] && 
+                const callResponse = this.responses.find(r =>
+                    r.result && r.result.content && r.result.content[0] &&
                     r.result.content[0].text
                 );
-                
+
                 if (callResponse) {
                     const responseText = callResponse.result.content[0].text;
                     if (isCI) {
@@ -171,15 +171,15 @@ class MCPIntegrationTester {
 
     async testCheckProjectStructure() {
         console.log('\n📁 Testing check_project_structure tool...');
-        
+
         // Create a test project structure
         const testDir = path.join(process.cwd(), 'test-mcp-project');
         const lightsDir = path.join(testDir, 'lights');
-        
+
         try {
             fs.mkdirSync(lightsDir, { recursive: true });
             fs.writeFileSync(path.join(lightsDir, 'test.fit'), 'MOCK_FITS_DATA');
-            
+
             return new Promise((resolve) => {
                 this.sendRequest({
                     jsonrpc: "2.0",
@@ -194,11 +194,11 @@ class MCPIntegrationTester {
                 });
 
                 setTimeout(() => {
-                    const callResponse = this.responses.find(r => 
-                        r.result && r.result.content && r.result.content[0] && 
+                    const callResponse = this.responses.find(r =>
+                        r.result && r.result.content && r.result.content[0] &&
                         r.result.content[0].text && r.result.content[0].text.includes('lights/')
                     );
-                    
+
                     if (callResponse) {
                         console.log('✅ check_project_structure tool executed successfully');
                         console.log('   Result:', callResponse.result.content[0].text.substring(0, 150) + '...');
@@ -207,7 +207,7 @@ class MCPIntegrationTester {
                         console.log('❌ check_project_structure tool failed');
                         resolve(false);
                     }
-                    
+
                     // Cleanup
                     fs.rmSync(testDir, { recursive: true, force: true });
                 }, 2000);
@@ -222,27 +222,27 @@ class MCPIntegrationTester {
         try {
             console.log('🎯 MCP Integration Testing');
             console.log('===========================\n');
-            
+
             await this.startServer();
-            
+
             const results = [];
             results.push(await this.testListTools());
             results.push(await this.testFindSirilBinary());
             results.push(await this.testCheckProjectStructure());
-            
+
             const passed = results.filter(r => r).length;
             const total = results.length;
-            
+
             console.log('\n📊 Test Results');
             console.log('================');
             console.log(`✅ Passed: ${passed}/${total}`);
-            
+
             if (passed === total) {
                 console.log('🎉 All MCP integration tests passed!');
             } else {
                 console.log('❌ Some tests failed');
             }
-            
+
         } catch (error) {
             console.error('❌ Test suite failed:', error);
         } finally {

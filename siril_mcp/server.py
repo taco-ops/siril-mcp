@@ -2,7 +2,7 @@
 import os
 import shutil
 import subprocess
-from typing import Literal, Optional
+from typing import Literal
 
 from fastmcp import Context, FastMCP
 
@@ -23,7 +23,7 @@ SSF_SCRIPT_CONTENTS = {
 #
 ########### PREPROCESSING SCRIPT ###########
 #
-# Script for Broadband mosaic preprocessing, see 
+# Script for Broadband mosaic preprocessing, see
 # other script for Narrowband mosaic preprocessing
 # This script plate solves, aligns, stacks, then does SPCC
 #
@@ -39,7 +39,7 @@ cd lights
 convert light -out=../process
 cd ../process
 
-# Platesolve 
+# Platesolve
 seqplatesolve light_ -nocache -force -disto=ps_distortion
 
 # Align lights
@@ -47,14 +47,14 @@ seqplatesolve light_ -nocache -force -disto=ps_distortion
 seqapplyreg light_ -filter-round=2.5k -framing=max -drizzle -scale=1.0 -pixfrac=1.0 -kernel=square
 
 # Stack calibrated lights to result.fit
-stack r_light_ rej 3 3 -norm=addscale -output_norm -rgb_equal -maximize -feather=5 -out=result 
+stack r_light_ rej 3 3 -norm=addscale -output_norm -rgb_equal -maximize -feather=5 -out=result
 
 #save result using FITS keywords for the name
 load result
 save ../$OBJECT:%s$_$STACKCNT:%d$x$EXPTIME:%d$sec_$DATE-OBS:dt$_og
 
-# Force platesolve for SPCC 
-platesolve -force 
+# Force platesolve for SPCC
+platesolve -force
 
 # Enable for Broadband only
 spcc "-oscsensor=ZWO Seestar S50" "-oscfilter=UV/IR Block" -catalog=localgaia "-whiteref=Average Spiral Galaxy"
@@ -62,21 +62,21 @@ spcc "-oscsensor=ZWO Seestar S50" "-oscfilter=UV/IR Block" -catalog=localgaia "-
 # Enable for Narrowband Only
 # spcc "-oscsensor=ZWO Seestar S50" -narrowband -rwl=656.28 -rbw=20 -gwl=500.70 -gbw=30 -bwl=500.70 -bbw=30 -catalog=localgaia "-whiteref=Average Spiral Galaxy"
 
-# Saved after SPCC 
+# Saved after SPCC
 save ../$OBJECT:%s$_$STACKCNT:%d$x$EXPTIME:%d$sec_$DATE-OBS:dt$_SPCC
 
 # Autostretch is done just to show a good initial result
 # To do your own stretch, load the _spcc file which is color calibrated or go back further and load the _og file
 autostretch
 
-# Alternative Stretch with GHS 
+# Alternative Stretch with GHS
 # uncomment to use - every image is different so autoghs doesn't always work as expected
 # autoghs 0 145 -b=5
 
-# LOAD _SPCC file to do your own stretch and _og file to do your own SPCC. 
+# LOAD _SPCC file to do your own stretch and _og file to do your own SPCC.
 #
 # https://www.Naztronomy.com
-# https://www.YouTube.com/Naztronomy 
+# https://www.YouTube.com/Naztronomy
 ############################################
 """,
     "narrowband": """#
@@ -90,7 +90,7 @@ autostretch
 #
 ########### PREPROCESSING SCRIPT ###########
 #
-# Script for Narrowband mosaic preprocessing, see 
+# Script for Narrowband mosaic preprocessing, see
 # other script for Broadband mosaic preprocessing
 # This script plate solves, aligns, stacks, then does SPCC
 #
@@ -106,7 +106,7 @@ cd lights
 convert light -out=../process
 cd ../process
 
-# Platesolve 
+# Platesolve
 seqplatesolve light_ -nocache -force -disto=ps_distortion
 
 # Align lights
@@ -114,36 +114,36 @@ seqplatesolve light_ -nocache -force -disto=ps_distortion
 seqapplyreg light_ -filter-round=2.5k -framing=max -drizzle -scale=1.0 -pixfrac=1.0 -kernel=square
 
 # Stack calibrated lights to result.fit
-stack r_light_ rej 3 3 -norm=addscale -output_norm -rgb_equal -maximize -feather=5 -out=result 
+stack r_light_ rej 3 3 -norm=addscale -output_norm -rgb_equal -maximize -feather=5 -out=result
 
 #save result using FITS keywords for the name
 load result
 save ../$OBJECT:%s$_$STACKCNT:%d$x$EXPTIME:%d$sec_$DATE-OBS:dt$_og
 
-# Force platesolve for SPCC 
-platesolve -force 
+# Force platesolve for SPCC
+platesolve -force
 
 # Enable for Broadband only
 #spcc "-oscsensor=ZWO Seestar S50" "-oscfilter=UV/IR Block" -catalog=localgaia "-whiteref=Average Spiral Galaxy"
 
-# Enable for Narrowband Only 
+# Enable for Narrowband Only
 spcc "-oscsensor=ZWO Seestar S50" -narrowband -rwl=656.28 -rbw=20 -gwl=500.70 -gbw=30 -bwl=500.70 -bbw=30 -catalog=localgaia "-whiteref=Average Spiral Galaxy"
 
-# Saved after SPCC 
+# Saved after SPCC
 save ../$OBJECT:%s$_$STACKCNT:%d$x$EXPTIME:%d$sec_$DATE-OBS:dt$_SPCC
 
 # Autostretch is done just to show a good initial result
 # To do your own stretch, load the _spcc file which is color calibrated or go back further and load the _og file
 autostretch
 
-# Alternative Stretch with GHS 
+# Alternative Stretch with GHS
 # uncomment to use - every image is different so autoghs doesn't always work as expected
 # autoghs 0 145 -b=5
 
-# LOAD _SPCC file to do your own stretch and _og file to do your own SPCC. 
+# LOAD _SPCC file to do your own stretch and _og file to do your own SPCC.
 #
 # https://www.Naztronomy.com
-# https://www.YouTube.com/Naztronomy 
+# https://www.YouTube.com/Naztronomy
 ############################################
 """,
 }
@@ -299,7 +299,7 @@ async def validate_siril_binary(binary_path: str, ctx: Context) -> str:
             return f"❌ Binary failed to run: {proc.stderr.strip()}"
     except subprocess.TimeoutExpired:
         await ctx.error("Binary execution timed out")
-        return f"❌ Binary timed out (may be hanging)"
+        return "❌ Binary timed out (may be hanging)"
     except Exception as e:
         await ctx.error(f"Error testing binary: {str(e)}")
         return f"❌ Error testing binary: {str(e)}"
@@ -374,7 +374,7 @@ async def process_seestar_mosaic(
     try:
         result = _process_seestar_mosaic(project_dir, filter_type)
         if ctx:
-            await ctx.info(f"Mosaic processing completed successfully")
+            await ctx.info("Mosaic processing completed successfully")
         return result
     except Exception as e:
         if ctx:

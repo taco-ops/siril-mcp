@@ -31,22 +31,22 @@ class NaturalLanguageTestSuite {
     async runTest(testName, description, toolCall) {
         console.log(`\n🧪 ${testName}`);
         console.log(`📝 Scenario: ${description}`);
-        
+
         try {
             const startTime = Date.now();
             const result = await toolCall();
             const duration = Date.now() - startTime;
-            
+
             console.log(`✅ Success (${duration}ms)`);
             console.log(`📤 Result: ${JSON.stringify(result.content, null, 2)}`);
-            
+
             this.testResults.push({
                 test: testName,
                 status: 'PASS',
                 duration,
                 result: result.content
             });
-            
+
         } catch (error) {
             console.log(`❌ Failed: ${error.message}`);
             this.testResults.push({
@@ -118,7 +118,7 @@ class NaturalLanguageTestSuite {
     async testProjectStructureCheck() {
         const testDir = path.join(process.cwd(), 'test-project-structure');
         const lightsDir = path.join(testDir, 'lights');
-        
+
         // Create test project structure
         fs.mkdirSync(lightsDir, { recursive: true });
         fs.writeFileSync(path.join(lightsDir, 'M31_001.fit'), 'MOCK_DATA');
@@ -141,17 +141,17 @@ class NaturalLanguageTestSuite {
         // Create a realistic test project structure
         const testDir = path.join(process.cwd(), 'test-seestar-data');
         const lightsDir = path.join(testDir, 'lights');
-        
+
         // Setup test data
         fs.mkdirSync(lightsDir, { recursive: true });
-        
+
         // Create mock .fit files with realistic names
         const mockFiles = [
             'M31_light_01.fit',
-            'M31_light_02.fit', 
+            'M31_light_02.fit',
             'M31_light_03.fit'
         ];
-        
+
         mockFiles.forEach(filename => {
             fs.writeFileSync(path.join(lightsDir, filename), 'MOCK_FIT_DATA');
         });
@@ -191,7 +191,7 @@ class NaturalLanguageTestSuite {
                 return {
                     content: [{
                         type: "text",
-                        text: `Available tools:\n${tools.map(t => 
+                        text: `Available tools:\n${tools.map(t =>
                             `• ${t.name}: ${t.description}`
                         ).join('\n')}`
                     }]
@@ -212,17 +212,17 @@ class NaturalLanguageTestSuite {
             await this.testVersionCheck();
             await this.testCustomBinaryValidation();
             await this.testInvalidBinaryValidation();
-            
+
             // Script management tests
             await this.testScriptDownload();
             await this.testProjectStructureCheck();
-            
+
             // Processing tests
             await this.testMosaicProcessingBroadband();
-            
+
             // Error handling tests
             await this.testInvalidProjectDir();
-            
+
             // Discovery tests
             await this.testToolDiscovery();
 
@@ -240,7 +240,7 @@ class NaturalLanguageTestSuite {
 
         const passed = this.testResults.filter(r => r.status === 'PASS').length;
         const failed = this.testResults.filter(r => r.status === 'FAIL').length;
-        
+
         console.log(`✅ Passed: ${passed}`);
         console.log(`❌ Failed: ${failed}`);
         console.log(`📈 Success Rate: ${(passed / this.testResults.length * 100).toFixed(1)}%`);

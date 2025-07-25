@@ -9,7 +9,7 @@ class UserWorkflowTests {
 
     async connect() {
         this.client = new MCPTestClient({
-            name: "siril-mcp-server", 
+            name: "siril-mcp-server",
             command: "python",
             args: ["-m", "siril_mcp.server"],
             env: {
@@ -53,7 +53,7 @@ class UserWorkflowTests {
         console.log("\n3️⃣ Downloading latest scripts...");
         const scriptDir = path.join(process.cwd(), 'new-user-project');
         fs.mkdirSync(scriptDir, { recursive: true });
-        
+
         try {
             const scripts = await this.client.callTool("download_latest_ssf_scripts", {
                 project_dir: scriptDir
@@ -66,7 +66,7 @@ class UserWorkflowTests {
         // Step 4: User creates a project and asks to process
         console.log("\n4️⃣ Analyzing project structure...");
         const testDir = this.createMockProject("M42_Orion_Nebula");
-        
+
         try {
             const structure = await this.client.callTool("check_project_structure", {
                 project_dir: testDir
@@ -112,7 +112,7 @@ class UserWorkflowTests {
         console.log("\n2️⃣ Processing narrowband nebula data...");
         const testDir = this.createMockProject("IC1396_Elephant_Trunk", [
             "IC1396_Ha_001.fit",
-            "IC1396_Ha_002.fit", 
+            "IC1396_Ha_002.fit",
             "IC1396_OIII_001.fit",
             "IC1396_OIII_002.fit"
         ]);
@@ -187,15 +187,15 @@ class UserWorkflowTests {
     createMockProject(name, fileNames = null) {
         const testDir = path.join(process.cwd(), `test-${name}`);
         const lightsDir = path.join(testDir, 'lights');
-        
+
         fs.mkdirSync(lightsDir, { recursive: true });
-        
+
         const defaultFiles = fileNames || [
             `${name}_light_001.fit`,
             `${name}_light_002.fit`,
             `${name}_light_003.fit`
         ];
-        
+
         defaultFiles.forEach(filename => {
             fs.writeFileSync(path.join(lightsDir, filename), `MOCK_${name}_DATA`);
         });
@@ -205,7 +205,7 @@ class UserWorkflowTests {
 
     async runAllWorkflows() {
         await this.connect();
-        
+
         try {
             await this.testNewUserWorkflow();
             await this.testAdvancedUserWorkflow();

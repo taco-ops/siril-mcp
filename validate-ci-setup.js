@@ -60,7 +60,7 @@ async function validateCISetup() {
     console.log('📊 CI Validation Results');
     console.log('========================');
     console.log(`✅ Passed: ${passed}/${total}`);
-    
+
     if (passed === total) {
         console.log('🎉 CI setup is ready for GitHub Actions!');
         console.log('\n📝 Next Steps:');

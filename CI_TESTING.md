@@ -10,7 +10,7 @@ This repository includes comprehensive CI/CD testing for the Siril MCP server, e
 
 1. **Simple MCP Test** (`simple-mcp-test.js`)
    - Tests basic functionality and internal functions
-   - Validates script generation capabilities  
+   - Validates script generation capabilities
    - Tests project structure validation logic
    - **CI-Aware**: Adapts behavior when Siril binary is not available
 
@@ -50,7 +50,7 @@ The test suite automatically detects CI environments and adapts accordingly:
 # Run basic functionality tests
 npm run test
 
-# Run MCP integration tests  
+# Run MCP integration tests
 npm run test:integration
 
 # Run all tests

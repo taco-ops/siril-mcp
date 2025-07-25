@@ -49,10 +49,11 @@ def test_broadband_vs_narrowband_differences():
     )
 
     # Narrowband should have narrowband processing enabled and broadband commented out
-    assert (
-        '# Enable for Broadband only\n#spcc "-oscsensor=ZWO Seestar S50" "-oscfilter=UV/IR Block"'
-        in narrowband
+    expected_line = (
+        '# Enable for Broadband only\n#spcc "-oscsensor=ZWO Seestar S50" '
+        '"-oscfilter=UV/IR Block"'
     )
+    assert expected_line in narrowband
     assert 'spcc "-oscsensor=ZWO Seestar S50" -narrowband' in narrowband
 
 

@@ -15,13 +15,13 @@ A Model Context Protocol (MCP) server that provides tools for working with Siril
 This project is in **early development**. Current features include:
 
 - ✅ **Siril Binary Detection**: Smart detection of Siril installations across platforms
-- ✅ **Version Checking**: Check your installed Siril version  
+- ✅ **Version Checking**: Check your installed Siril version
 - ✅ **Basic Mosaic Processing**: Process Seestar S30/S50 telescope images
 - ✅ **Filter Support**: Supports both broadband and narrowband processing
 - ✅ **Auto Script Creation**: Automatically creates required SSF scripts
 - ✅ **FastMCP Integration**: Proper async logging and error handling
 - 🔄 **Script Updates**: Download latest scripts from Naztronomy repository
-- 🔄 **Project Analysis**: Check project structure and file organization  
+- 🔄 **Project Analysis**: Check project structure and file organization
 - ❌ **GUI Integration**: Headless preprocessing tools (planned)
 - ❌ **PyPI Package**: Not yet published
 
@@ -181,7 +181,7 @@ npm install
 # Run basic functionality tests
 npm run test
 
-# Run MCP protocol integration tests  
+# Run MCP protocol integration tests
 npm run test:integration
 
 # Run all MCP tests
@@ -209,7 +209,7 @@ The project uses GitHub Actions for automated testing and releases:
 
 ### Test Coverage Includes
 - ✅ Siril binary detection across platforms
-- ✅ Version checking and error handling  
+- ✅ Version checking and error handling
 - ✅ SSF script content validation
 - ✅ Project structure validation
 - ✅ MCP protocol compliance and tool registration
@@ -356,7 +356,7 @@ This project is in early development and contributions are welcome! Here's how t
 ### Development Setup
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Install development dependencies**: 
+3. **Install development dependencies**:
    ```bash
    pipenv install --dev  # Python dependencies
    npm install           # Node.js testing dependencies
@@ -366,13 +366,13 @@ This project is in early development and contributions are welcome! Here's how t
 4. **Make your changes and add tests**
    - Add Python unit tests in `tests/` directory
    - Update MCP integration tests if modifying tool functionality
-5. **Run the complete test suite**: 
+5. **Run the complete test suite**:
    ```bash
    pipenv run test      # Python tests
    npm run test:all     # MCP integration tests
    npm run validate-ci  # CI readiness check
    ```
-6. **Format and lint your code**: 
+6. **Format and lint your code**:
    ```bash
    pipenv run format    # Black formatting
    pipenv run lint      # Flake8 linting
@@ -411,7 +411,7 @@ CI=true npm run test:all
 
 - [ ] Complete GUI integration for preprocessing tools
 - [ ] Add support for additional telescope types
-- [ ] Implement batch processing capabilities  
+- [ ] Implement batch processing capabilities
 - [ ] Add image quality assessment tools
 - [ ] Create comprehensive documentation site
 - [ ] Publish to PyPI for stable releases

@@ -7,7 +7,7 @@ This repository includes comprehensive GitHub Actions workflows for continuous i
 ### 1. CI Workflow (`.github/workflows/ci.yml`)
 - **Triggers**: Push to `main` or `develop` branches, pull requests
 - **Multi-Stage Pipeline**:
-  
+
   **Stage 1: Lint and Format**
   - Runs on Python 3.10, 3.11, and 3.12
   - Checks code formatting with Black
@@ -190,7 +190,7 @@ To enable automatic PyPI publishing on releases:
 
 **Important**: PyPI publishing only occurs after ALL quality gates pass:
 - ✅ Code quality validation
-- ✅ Multi-Python testing  
+- ✅ Multi-Python testing
 - ✅ MCP integration testing
 - ✅ Package build verification
 
