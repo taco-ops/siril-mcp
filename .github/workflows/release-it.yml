@@ -13,6 +13,12 @@ on:
           - minor
           - major
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  repository-projects: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
