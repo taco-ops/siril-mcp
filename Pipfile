@@ -9,11 +9,14 @@ fastmcp = "*"
 [dev-packages]
 build = "*"
 twine = "*"
-pytest = "*"
 black = "*"
 flake8 = "*"
+pytest = "*"
 isort = "*"
 tomli = "*"
+
+[requires]
+python_version = "3.10"
 
 [scripts]
 build = "python -m build"
