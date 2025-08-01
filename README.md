@@ -25,16 +25,6 @@ This project is in **early development**. Current features include:
 - ❌ **GUI Integration**: Headless preprocessing tools (planned)
 - ❌ **PyPI Package**: Not yet published
 
-## Features
-
-- **Version Checking**: Check your installed Siril version
-- **Mosaic Processing**: Process Seestar S30/S50 telescope images into mosaics
-- **Filter Support**: Supports both broadband (UV/IR block) and narrowband (LP filter) processing
-- **Auto Script Creation**: Automatically creates the required SSF scripts (no manual downloads needed!)
-- **Script Updates**: Download latest scripts from the Naztronomy repository
-- **Project Analysis**: Check your project structure and file organization
-- **GUI Integration**: Launch Naztronomy preprocessing tools in headless mode
-
 ## Prerequisites
 
 - Python 3.10+
